@@ -5,9 +5,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-let datosSensor = { temperatura: 0, humedad: 0, fecha: new Date().toLocaleString() };
+let datosSensor = {
+  temperatura: 0,
+  humedad: 0,
+  fecha: new Date().toLocaleString(),
+};
 
-// Recibir datos del ESP32 receptor
+// 📥 Recibir datos del ESP32
 app.post("/api/datos", (req, res) => {
   const { temperatura, humedad } = req.body;
 
@@ -20,14 +24,35 @@ app.post("/api/datos", (req, res) => {
   res.json({ mensaje: "Datos guardados correctamente" });
 });
 
-// Consultar datos (para el dashboard)
+// 📤 Consultar datos desde el dashboard o frontend
 app.get("/api/datos", (req, res) => {
   res.json(datosSensor);
 });
 
-// ✅ Ruta raíz para probar desde el navegador
+// 🌐 Mostrar datos directamente en el navegador
 app.get("/", (req, res) => {
-  res.send("🚀 Servidor funcionando en Railway correctamente");
+  res.send(`
+    <html>
+      <head>
+        <title>Datos del Sensor</title>
+        <meta http-equiv="refresh" content="5"> <!-- Se actualiza cada 5 segundos -->
+        <style>
+          body { font-family: Arial; text-align: center; margin-top: 40px; background-color: #f8f9fa; color: #333; }
+          h1 { color: #007bff; }
+          .card { display: inline-block; padding: 20px 40px; border: 1px solid #ccc; border-radius: 10px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+          p { font-size: 1.2em; margin: 8px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <h1>📊 Datos del Sensor</h1>
+          <p><strong>🌡️ Temperatura:</strong> ${datosSensor.temperatura} °C</p>
+          <p><strong>💧 Humedad:</strong> ${datosSensor.humedad} %</p>
+          <p><strong>🕒 Fecha:</strong> ${datosSensor.fecha}</p>
+        </div>
+      </body>
+    </html>
+  `);
 });
 
 // ✅ Puerto dinámico (para Railway)
