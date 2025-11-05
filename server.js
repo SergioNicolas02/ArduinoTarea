@@ -34,26 +34,30 @@ app.get("/", (req, res) => {
   res.send(`
     <html>
       <head>
-        <title>Datos del Sensor</title>
-        <meta http-equiv="refresh" content="5"> <!-- Se actualiza cada 5 segundos -->
+        <title>Panel de Datos LoRa 🌡️</title>
+        <meta http-equiv="refresh" content="5">
         <style>
-          body { font-family: Arial; text-align: center; margin-top: 40px; background-color: #f8f9fa; color: #333; }
+          body { font-family: Arial; background: #f7f7f7; text-align: center; margin-top: 60px; color: #333; }
           h1 { color: #007bff; }
-          .card { display: inline-block; padding: 20px 40px; border: 1px solid #ccc; border-radius: 10px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+          .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: inline-block; }
           p { font-size: 1.2em; margin: 8px 0; }
+          .on { color: green; font-weight: bold; }
+          .off { color: red; font-weight: bold; }
         </style>
       </head>
       <body>
         <div class="card">
-          <h1>📊 Datos del Sensor</h1>
-          <p><strong>🌡️ Temperatura:</strong> ${datosSensor.temperatura} °C</p>
-          <p><strong>💧 Humedad:</strong> ${datosSensor.humedad} %</p>
-          <p><strong>🕒 Fecha:</strong> ${datosSensor.fecha}</p>
+          <h1>📡 Datos del Sensor</h1>
+          <p><b>🌡️ Temperatura:</b> ${datosSensor.temperatura.toFixed(2)} °C</p>
+          <p><b>💧 Humedad:</b> ${datosSensor.humedad.toFixed(2)} %</p>
+          <p><b>💡 Bombillo:</b> <span class="${datosSensor.bombillo ? 'on' : 'off'}">${datosSensor.bombillo ? 'Encendido' : 'Apagado'}</span></p>
+          <p><b>🕒 Última actualización:</b> ${datosSensor.fecha}</p>
         </div>
       </body>
     </html>
   `);
 });
+
 
 // ✅ Puerto dinámico (para Railway)
 const PORT = process.env.PORT || 8080;
