@@ -1,4 +1,3 @@
-// server.js
 import express from "express";
 import cors from "cors";
 
@@ -26,6 +25,11 @@ app.get("/api/datos", (req, res) => {
   res.json(datosSensor);
 });
 
-// Puerto dinámico (para Railway) o 3000 local
+// ✅ Ruta raíz para probar desde el navegador
+app.get("/", (req, res) => {
+  res.send("🚀 Servidor funcionando en Railway correctamente");
+});
+
+// ✅ Puerto dinámico (para Railway)
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
