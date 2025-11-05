@@ -67,7 +67,6 @@ app.get("/", (req, res) => {
           <p><b>🌡️ Temperatura:</b> ${datosSensor.temperatura.toFixed(2)} °C</p>
           <p><b>💧 Humedad:</b> ${datosSensor.humedad.toFixed(2)} %</p>
           <p><b>💡 Bombillo:</b> <span class="${datosSensor.bombillo ? 'on' : 'off'}">${datosSensor.bombillo ? 'Encendido' : 'Apagado'}</span></p>
-          <p><b>🕒 Última actualización:</b> ${datosSensor.fecha}</p>
         </div>
       </body>
     </html>
