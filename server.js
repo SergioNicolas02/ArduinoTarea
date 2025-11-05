@@ -1,35 +1,51 @@
+// server.js
 import express from "express";
 import cors from "cors";
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Para leer JSON
 
+// Estado del sensor
 let datosSensor = {
   temperatura: 0,
   humedad: 0,
+  bombillo: 0,
   fecha: new Date().toLocaleString(),
 };
 
-// 📥 Recibir datos del ESP32
+// ---------- Ruta POST para recibir datos ----------
 app.post("/api/datos", (req, res) => {
-  const { temperatura, humedad } = req.body;
+  const { datos } = req.body;
 
-  if (temperatura === undefined || humedad === undefined) {
-    return res.status(400).json({ error: "Faltan datos en la solicitud" });
+  if (!datos) {
+    return res.status(400).json({ error: "No se recibieron datos" });
   }
 
-  datosSensor = { temperatura, humedad, fecha: new Date().toLocaleString() };
+  // Los datos vienen como "25.3,60,1"
+  const partes = datos.split(",");
+  if (partes.length !== 3) {
+    return res.status(400).json({ error: "Formato de datos incorrecto" });
+  }
+
+  const [tempStr, humStr, bombStr] = partes;
+  datosSensor = {
+    temperatura: parseFloat(tempStr),
+    humedad: parseFloat(humStr),
+    bombillo: parseInt(bombStr),
+    fecha: new Date().toLocaleString(),
+  };
+
   console.log("📥 Datos recibidos:", datosSensor);
   res.json({ mensaje: "Datos guardados correctamente" });
 });
 
-// 📤 Consultar datos desde el dashboard o frontend
+// ---------- Ruta GET para ver datos en JSON ----------
 app.get("/api/datos", (req, res) => {
   res.json(datosSensor);
 });
 
-// 🌐 Mostrar datos directamente en el navegador
+// ---------- Página web para visualizar datos ----------
 app.get("/", (req, res) => {
   res.send(`
     <html>
@@ -58,7 +74,6 @@ app.get("/", (req, res) => {
   `);
 });
 
-
-// ✅ Puerto dinámico (para Railway)
+// ---------- Puerto dinámico (Railway) o 8080 local ----------
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
