@@ -27,6 +27,5 @@ app.get("/api/datos", (req, res) => {
 });
 
 // Puerto dinámico (para Railway) o 3000 local
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
-export default app;
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
