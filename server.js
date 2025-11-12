@@ -8,6 +8,7 @@ app.use(express.json()); // Para leer JSON
 
 // Estado del sensor
 let datosSensor = {
+  id: 0,
   temperatura: 0,
   humedad: 0,
   bombillo: 0,
@@ -28,8 +29,9 @@ app.post("/api/datos", (req, res) => {
     return res.status(400).json({ error: "Formato de datos incorrecto" });
   }
 
-  const [tempStr, humStr, bombStr] = partes;
+  const [idstr, tempStr, humStr, bombStr] = partes;
   datosSensor = {
+    id: parseInt(idstr),
     temperatura: parseFloat(tempStr),
     humedad: parseFloat(humStr),
     bombillo: parseInt(bombStr),
@@ -64,6 +66,7 @@ app.get("/", (req, res) => {
       <body>
         <div class="card">
           <h1>📡 Datos del Sensor</h1>
+          <p><b> Sensor:</b> ${datosSensor.id.toFixed(2)} °C</p>
           <p><b>🌡️ Temperatura:</b> ${datosSensor.temperatura.toFixed(2)} °C</p>
           <p><b>💧 Humedad:</b> ${datosSensor.humedad.toFixed(2)} %</p>
           <p><b>💡 Bombillo:</b> <span class="${datosSensor.bombillo ? 'on' : 'off'}">${datosSensor.bombillo ? 'Encendido' : 'Apagado'}</span></p>
