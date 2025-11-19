@@ -3,77 +3,139 @@ import express from "express";
 import cors from "cors";
 
 const app = express();
-app.use(cors());
-app.use(express.json()); // Para leer JSON
 
-// Estado del sensor
-let datosSensor = {
+// Middlewares
+app.use(cors());
+app.use(express.json());
+
+// ----------------------
+// Estado inicial del sensor
+// ----------------------
+let estadoSensor = {
   temperatura: 0,
   humedad: 0,
   bombillo: 0,
   fecha: new Date().toLocaleString(),
 };
 
-// ---------- Ruta POST para recibir datos ----------
+// ----------------------
+// POST -> Guardar data
+// ----------------------
 app.post("/api/datos", (req, res) => {
-  const { datos } = req.body;
+  const paquete = req.body?.datos;
 
-  if (!datos) {
-    return res.status(400).json({ error: "No se recibieron datos" });
+  if (!paquete) {
+    return res.status(400).json({ error: "No se envió ningún dato" });
   }
 
-  // Los datos vienen como "25.3,60,1"
-  const partes = datos.split(",");
-  if (partes.length !== 3) {
-    return res.status(400).json({ error: "Formato de datos incorrecto" });
+  const valores = paquete.split(",");
+
+  if (valores.length !== 3) {
+    return res.status(400).json({ error: "El formato debe ser 'temp,hum,bombillo'" });
   }
 
-  const [tempStr, humStr, bombStr] = partes;
-  datosSensor = {
-    temperatura: parseFloat(tempStr),
-    humedad: parseFloat(humStr),
-    bombillo: parseInt(bombStr),
+  const [t, h, b] = valores;
+
+  estadoSensor = {
+    temperatura: parseFloat(t),
+    humedad: parseFloat(h),
+    bombillo: parseInt(b),
     fecha: new Date().toLocaleString(),
   };
 
-  console.log("📥 Datos recibidos:", datosSensor);
-  res.json({ mensaje: "Datos guardados correctamente" });
+  console.log("📩 Nuevo paquete recibido:", estadoSensor);
+  return res.json({ message: "Datos actualizados exitosamente" });
 });
 
-// ---------- Ruta GET para ver datos en JSON ----------
-app.get("/api/datos", (req, res) => {
-  res.json(datosSensor);
+// ----------------------
+// GET -> Consultar data JSON
+// ----------------------
+app.get("/api/datos", (_, res) => {
+  res.json(estadoSensor);
 });
 
-// ---------- Página web para visualizar datos ----------
+// ----------------------
+// Página visual
+// ----------------------
 app.get("/", (req, res) => {
+  const { temperatura, humedad, bombillo, fecha } = estadoSensor;
+
   res.send(`
+    <!DOCTYPE html>
     <html>
-      <head>
-        <title>Panel de Datos LoRa 🌡️</title>
-        <meta http-equiv="refresh" content="5">
-        <style>
-          body { font-family: Arial; background: #f7f7f7; text-align: center; margin-top: 60px; color: #333; }
-          h1 { color: #007bff; }
-          .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: inline-block; }
-          p { font-size: 1.2em; margin: 8px 0; }
-          .on { color: green; font-weight: bold; }
-          .off { color: red; font-weight: bold; }
-        </style>
-      </head>
-      <body>
-        <div class="card">
-          <h1>📡 Datos del Sensor</h1>
-          <p><b>🌡️ Temperatura:</b> ${datosSensor.temperatura.toFixed(2)} °C</p>
-          <p><b>💧 Humedad:</b> ${datosSensor.humedad.toFixed(2)} %</p>
-          <p><b>💡 Bombillo:</b> <span class="${datosSensor.bombillo ? 'on' : 'off'}">${datosSensor.bombillo ? 'Encendido' : 'Apagado'}</span></p>
-          <p><b>🕒 Última actualización:</b> ${datosSensor.fecha}</p>
+    <head>
+      <title>Dashboard LoRa</title>
+      <meta http-equiv="refresh" content="5" />
+      <style>
+        body {
+          margin: 0;
+          background: #1e1e1e;
+          font-family: Arial, sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          color: #fff;
+        }
+        .panel {
+          background: #282828;
+          padding: 30px;
+          border-radius: 12px;
+          width: 330px;
+          box-shadow: 0 0 12px rgba(0,0,0,0.4);
+          text-align: center;
+        }
+        h1 {
+          margin-bottom: 20px;
+          font-size: 22px;
+          color: #4da8ff;
+        }
+        .dato {
+          background: #333;
+          padding: 12px;
+          border-radius: 8px;
+          margin: 10px 0;
+          font-size: 1.1em;
+        }
+        .on {
+          color: #4cff4c;
+          font-weight: bold;
+        }
+        .off {
+          color: #ff4c4c;
+          font-weight: bold;
+        }
+        .footer {
+          margin-top: 12px;
+          font-size: 0.9em;
+          color: #aaa;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="panel">
+        <h1>📡 Sensor LoRa</h1>
+
+        <div class="dato">🌡️ Temperatura: <b>${temperatura.toFixed(1)} °C</b></div>
+        <div class="dato">💧 Humedad: <b>${humedad.toFixed(1)} %</b></div>
+
+        <div class="dato">
+          💡 Bombillo: 
+          <span class="${bombillo ? "on" : "off"}">
+            ${bombillo ? "Encendido" : "Apagado"}
+          </span>
         </div>
-      </body>
+
+      </div>
+    </body>
     </html>
   `);
 });
 
-// ---------- Puerto dinámico (Railway) o 8080 local ----------
+// ----------------------
+// Server
+// ----------------------
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🔥 Servidor activo en puerto ${PORT}`);
+});
