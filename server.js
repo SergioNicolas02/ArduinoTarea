@@ -8,9 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ----------------------
-// Estado inicial del sensor
-// ----------------------
+
 let estadoSensor = {
   temperatura: 0,
   humedad: 0,
@@ -18,9 +16,7 @@ let estadoSensor = {
   fecha: new Date().toLocaleString(),
 };
 
-// ----------------------
-// POST -> Guardar data
-// ----------------------
+
 app.post("/api/datos", (req, res) => {
   const paquete = req.body?.datos;
 
@@ -43,20 +39,14 @@ app.post("/api/datos", (req, res) => {
     fecha: new Date().toLocaleString(),
   };
 
-  console.log("📩 Nuevo paquete recibido:", estadoSensor);
+  console.log(" Nuevo paquete recibido:", estadoSensor);
   return res.json({ message: "Datos actualizados exitosamente" });
 });
 
-// ----------------------
-// GET -> Consultar data JSON
-// ----------------------
 app.get("/api/datos", (_, res) => {
   res.json(estadoSensor);
 });
 
-// ----------------------
-// Página visual
-// ----------------------
 app.get("/", (req, res) => {
   const { temperatura, humedad, bombillo, fecha } = estadoSensor;
 
@@ -114,10 +104,10 @@ app.get("/", (req, res) => {
     </head>
     <body>
       <div class="panel">
-        <h1>📡 Sensor LoRa</h1>
+        <h1> Sensor LoRa</h1>
 
-        <div class="dato">🌡️ Temperatura: <b>${temperatura.toFixed(1)} °C</b></div>
-        <div class="dato">💧 Humedad: <b>${humedad.toFixed(1)} %</b></div>
+        <div class="dato"> Temperatura: <b>${temperatura.toFixed(1)} °C</b></div>
+        <div class="dato"> Humedad: <b>${humedad.toFixed(1)} %</b></div>
 
         <div class="dato">
           💡 Bombillo: 
@@ -132,10 +122,7 @@ app.get("/", (req, res) => {
   `);
 });
 
-// ----------------------
-// Server
-// ----------------------
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`🔥 Servidor activo en puerto ${PORT}`);
+  console.log(` Servidor activo en puerto ${PORT}`);
 });
